@@ -1,0 +1,1504 @@
+﻿<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Power BI レポート作成入門</title>
+  <style>
+    :root {
+      --bg: #eef3f8;
+      --slide: #fff;
+      --ink: #172033;
+      --text: #334155;
+      --muted: #64748b;
+      --line: #d8e3f2;
+      --panel: #f8fafc;
+      --blue: #2563eb;
+      --blue2: #dbeafe;
+      --cyan: #0891b2;
+      --green: #16a34a;
+      --amber: #f2c811;
+      --orange: #f97316;
+      --violet: #7c3aed;
+      --red: #dc2626;
+      --shadow: 0 28px 80px rgba(15, 23, 42, .18);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      overflow: hidden;
+      color: var(--ink);
+      font-family: "Yu Gothic UI", "Meiryo", system-ui, sans-serif;
+      background:
+        radial-gradient(circle at 18% 12%, rgba(37, 99, 235, .13), transparent 28%),
+        radial-gradient(circle at 84% 84%, rgba(8, 145, 178, .12), transparent 30%),
+        var(--bg);
+    }
+
+    button { font: inherit; }
+
+    .deck {
+      width: 100vw;
+      height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+    }
+
+    .slide {
+      display: none;
+      width: min(100vw - 48px, calc((100vh - 78px) * 16 / 9));
+      aspect-ratio: 16 / 9;
+      background: var(--slide);
+      border: 1px solid rgba(148, 163, 184, .35);
+      border-radius: 14px;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      position: relative;
+    }
+
+    .slide.active { display: grid; }
+
+    .slide::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(90deg, rgba(37, 99, 235, .04) 0 1px, transparent 1px) 0 0 / 72px 72px,
+        linear-gradient(180deg, rgba(37, 99, 235, .035) 0 1px, transparent 1px) 0 0 / 72px 72px;
+      pointer-events: none;
+    }
+
+    .chrome {
+      position: relative;
+      z-index: 1;
+      height: 100%;
+      display: grid;
+      grid-template-rows: 72px 1fr 42px;
+    }
+
+    header, footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-inline: 54px;
+      color: var(--muted);
+      font-size: 14px;
+      font-weight: 800;
+    }
+
+    header { border-bottom: 1px solid rgba(216, 227, 242, .9); }
+    footer { border-top: 1px solid rgba(216, 227, 242, .9); font-size: 13px; }
+
+    .brand { display: inline-flex; gap: 12px; align-items: center; color: var(--ink); }
+    .logo {
+      width: 34px;
+      height: 30px;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 3px;
+      align-items: end;
+    }
+    .logo i { display: block; border-radius: 3px 3px 0 0; background: linear-gradient(180deg, #fde68a, var(--amber)); }
+    .logo i:nth-child(1) { height: 36%; }
+    .logo i:nth-child(2) { height: 58%; }
+    .logo i:nth-child(3) { height: 80%; }
+    .logo i:nth-child(4) { height: 100%; }
+
+    .content {
+      padding: 31px 54px 25px;
+      display: grid;
+      gap: 22px;
+      align-content: stretch;
+    }
+
+    .split { grid-template-columns: 1fr 1fr; align-items: stretch; }
+    .wide-left { grid-template-columns: 1.12fr .88fr; }
+    .wide-right { grid-template-columns: .88fr 1.12fr; }
+    .title-layout { grid-template-columns: .92fr 1.08fr; align-items: center; }
+    .stack { display: grid; gap: 18px; align-content: center; }
+    .head { display: grid; gap: 9px; align-content: start; }
+
+    .kicker {
+      margin: 0;
+      color: var(--blue);
+      font-size: 15px;
+      font-weight: 900;
+      text-transform: uppercase;
+    }
+
+    h1, h2, h3, p { margin: 0; }
+    h1 { font-size: clamp(58px, 5.7vw, 104px); line-height: .98; letter-spacing: 0; }
+    h2 { font-size: clamp(38px, 4vw, 68px); line-height: 1.03; letter-spacing: 0; }
+    h3 { font-size: clamp(20px, 1.62vw, 29px); line-height: 1.2; letter-spacing: 0; }
+    .lead { color: var(--text); font-size: clamp(22px, 1.8vw, 32px); line-height: 1.42; font-weight: 500; }
+    .text { color: var(--text); font-size: clamp(16px, 1.13vw, 20px); line-height: 1.45; }
+    .small { color: var(--muted); font-size: clamp(12px, .92vw, 16px); line-height: 1.4; }
+
+    .panel {
+      background: rgba(248, 250, 252, .95);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 12px 30px rgba(15, 23, 42, .07);
+    }
+    .lower-note { margin-top: 28px; }
+    .blue-panel { background: linear-gradient(135deg, #eff6ff, #fff); border-color: #bfdbfe; }
+    .cyan-panel { background: linear-gradient(135deg, #ecfeff, #fff); border-color: #bae6fd; }
+    .amber-panel { background: linear-gradient(135deg, #fffbeb, #fff); border-color: #fde68a; }
+    .green-panel { background: linear-gradient(135deg, #f0fdf4, #fff); border-color: #bbf7d0; }
+    .dark-panel { background: #172033; border-color: #172033; color: #fff; }
+    .dark-panel h3, .dark-panel .text, .dark-panel .small { color: #fff; }
+
+    .grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 18px; }
+    .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+    .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; }
+    .mini { min-height: 142px; display: grid; gap: 9px; align-content: start; }
+    .metric { display: grid; gap: 8px; align-content: start; }
+    .metric strong { color: var(--blue); font-size: clamp(32px, 2.8vw, 54px); line-height: .95; font-weight: 900; }
+
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      width: fit-content;
+      min-height: 31px;
+      padding: 5px 12px;
+      border-radius: 999px;
+      background: var(--blue2);
+      color: var(--blue);
+      font-size: 13px;
+      font-weight: 900;
+    }
+
+    .list { display: grid; gap: 10px; margin: 0; padding: 0; list-style: none; }
+    .list li {
+      display: grid;
+      grid-template-columns: 30px 1fr;
+      gap: 10px;
+      color: var(--text);
+      font-size: clamp(16px, 1.12vw, 20px);
+      line-height: 1.42;
+    }
+
+    .badge {
+      width: 30px;
+      height: 30px;
+      display: grid;
+      place-items: center;
+      border-radius: 9px;
+      background: var(--blue2);
+      color: var(--blue);
+      font-size: 13px;
+      font-weight: 900;
+    }
+
+    .workflow {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 13px;
+      align-items: stretch;
+    }
+
+    .step {
+      min-height: 280px;
+      border-radius: 16px;
+      border: 1px solid var(--line);
+      background: #fff;
+      padding: 18px;
+      display: grid;
+      grid-template-rows: auto auto 1fr;
+      gap: 10px;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 14px 30px rgba(15, 23, 42, .07);
+    }
+
+    .step::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      height: 8px;
+      background: var(--blue);
+    }
+    .step:nth-child(2)::after { background: var(--cyan); }
+    .step:nth-child(3)::after { background: var(--green); }
+    .step:nth-child(4)::after { background: var(--orange); }
+    .step:nth-child(5)::after { background: var(--violet); }
+    .step-num { color: rgba(37, 99, 235, .18); font-size: 50px; font-weight: 900; line-height: .9; }
+
+    .desktop {
+      height: 100%;
+      min-height: 505px;
+      border: 1px solid #cbd5e1;
+      border-radius: 16px;
+      background: #fff;
+      overflow: hidden;
+      display: grid;
+      grid-template-rows: 46px 52px 1fr 38px;
+      box-shadow: 0 20px 48px rgba(15, 23, 42, .13);
+    }
+
+    .hero-desktop {
+      min-height: 455px;
+      max-height: 520px;
+      align-self: center;
+    }
+
+    .titlebar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 16px;
+      background: #f8fafc;
+      border-bottom: 1px solid var(--line);
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .ribbon {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      padding: 9px 14px;
+      background: #fff;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .ribbon span {
+      min-height: 30px;
+      padding: 6px 10px;
+      border-radius: 7px;
+      background: #eff6ff;
+      color: var(--blue);
+      font-size: 12px;
+      font-weight: 900;
+    }
+
+    .desktop-body {
+      display: grid;
+      grid-template-columns: 48px 1fr 230px;
+      min-height: 0;
+    }
+
+    .hero-desktop .desktop-body {
+      grid-template-columns: 48px minmax(0, 1fr) 210px;
+    }
+
+    .rail {
+      background: #f8fafc;
+      border-right: 1px solid var(--line);
+      display: grid;
+      align-content: start;
+      gap: 10px;
+      padding: 14px 8px;
+    }
+
+    .rail div {
+      width: 32px;
+      height: 32px;
+      display: grid;
+      place-items: center;
+      border-radius: 9px;
+      background: #fff;
+      border: 1px solid var(--line);
+      color: var(--blue);
+      font-weight: 900;
+      font-size: 13px;
+    }
+
+    .canvas {
+      padding: 16px;
+      background: #f1f5f9;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      grid-template-rows: minmax(100px, auto) 1fr;
+      gap: 12px;
+      min-height: 0;
+    }
+
+    .canvas.compact-canvas {
+      grid-template-rows: 112px 150px;
+      align-content: start;
+    }
+
+    .compact-canvas .visual.wide {
+      padding-block: 13px;
+    }
+
+    .canvas.report-canvas {
+      grid-template-rows: 112px 150px;
+      align-content: start;
+    }
+
+    .canvas.demo-canvas {
+      grid-template-rows: 96px 132px 132px;
+      align-content: start;
+    }
+
+    .canvas.build-canvas {
+      grid-template-rows: 112px 126px 126px;
+      align-content: start;
+    }
+
+    .report-canvas .visual.wide {
+      padding-block: 13px;
+    }
+
+    .visual {
+      background: #fff;
+      border: 1px solid #dbe4f0;
+      border-radius: 10px;
+      padding: 12px;
+      display: grid;
+      gap: 8px;
+      align-content: start;
+      min-height: 0;
+    }
+    .visual.wide { grid-column: span 2; }
+    .visual h4 { margin: 0; color: var(--ink); font-size: 14px; }
+
+    .visual.tight {
+      min-height: 0;
+      height: 150px;
+    }
+
+    .visual.short {
+      min-height: 0;
+      height: 132px;
+    }
+
+    .desktop-kpis {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .desktop-kpi {
+      min-width: 0;
+      background: #f8fafc;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 7px 8px;
+      display: grid;
+      gap: 3px;
+    }
+
+    .desktop-kpi small {
+      color: var(--muted);
+      font-size: 10px;
+      font-weight: 900;
+      white-space: nowrap;
+    }
+
+    .desktop-kpi strong {
+      color: var(--ink);
+      font-size: 18px;
+      line-height: 1;
+      white-space: nowrap;
+    }
+
+    .small-bars {
+      height: 78px;
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 6px;
+      align-items: end;
+    }
+    .small-bars i { display: block; min-height: 15px; border-radius: 5px 5px 0 0; background: var(--blue); }
+    .small-bars i:nth-child(2n) { background: var(--cyan); }
+    .small-bars i:nth-child(3n) { background: var(--green); }
+
+    .donut-wrap {
+      display: grid;
+      grid-template-columns: 82px 1fr;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .donut {
+      width: 78px;
+      height: 78px;
+      border-radius: 50%;
+      background: conic-gradient(var(--blue) 0 42%, var(--cyan) 42% 68%, var(--green) 68% 86%, var(--amber) 86% 100%);
+      position: relative;
+    }
+
+    .donut::after {
+      content: "";
+      position: absolute;
+      inset: 18px;
+      border-radius: 50%;
+      background: #fff;
+      border: 1px solid var(--line);
+    }
+
+    .legend {
+      display: grid;
+      gap: 5px;
+      color: var(--text);
+      font-size: 11px;
+      font-weight: 800;
+    }
+
+    .legend span {
+      display: grid;
+      grid-template-columns: 10px 1fr auto;
+      gap: 6px;
+      align-items: center;
+    }
+
+    .swatch {
+      width: 10px;
+      height: 10px;
+      border-radius: 3px;
+      background: var(--blue);
+    }
+
+    .line-chart {
+      height: 78px;
+      border-left: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+      position: relative;
+      margin: 4px 4px 0;
+      background:
+        linear-gradient(180deg, transparent 0 49%, rgba(216, 227, 242, .9) 50%, transparent 51%) 0 0 / 100% 26px;
+    }
+
+    .line-chart svg {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      overflow: visible;
+    }
+
+    .views-canvas {
+      padding: 16px;
+      background: #f1f5f9;
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+      align-content: start;
+    }
+
+    .view-card {
+      background: #fff;
+      border: 1px solid #dbe4f0;
+      border-radius: 12px;
+      padding: 12px;
+      display: grid;
+      grid-template-columns: 86px 1fr;
+      gap: 12px;
+      align-items: center;
+      min-height: 108px;
+    }
+
+    .view-cards {
+      display: grid;
+      gap: 16px;
+      align-content: stretch;
+      height: 100%;
+    }
+
+    .standalone-view {
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 16px;
+      display: grid;
+      grid-template-columns: 78px 1fr;
+      gap: 16px;
+      align-items: center;
+      min-height: 170px;
+      box-shadow: 0 12px 28px rgba(15, 23, 42, .07);
+    }
+
+    .view-icon {
+      width: 70px;
+      height: 70px;
+      border-radius: 16px;
+      display: grid;
+      place-items: center;
+      background: var(--blue2);
+      color: var(--blue);
+      font-size: 30px;
+      font-weight: 900;
+    }
+
+    .view-mini {
+      display: grid;
+      gap: 6px;
+    }
+
+    .mini-table {
+      display: grid;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      overflow: hidden;
+      background: #fff;
+    }
+
+    .mini-table div {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .mini-table div:last-child {
+      border-bottom: 0;
+    }
+
+    .mini-table span {
+      padding: 5px 7px;
+      border-right: 1px solid var(--line);
+      color: var(--text);
+      font-size: 10px;
+      font-weight: 800;
+    }
+
+    .mini-table span:last-child {
+      border-right: 0;
+    }
+
+    .mini-model {
+      height: 104px;
+      position: relative;
+    }
+
+    .mini-model .node {
+      position: absolute;
+      width: 88px;
+      min-height: 30px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+      display: grid;
+      place-items: center;
+      color: var(--text);
+      font-size: 10px;
+      font-weight: 900;
+      z-index: 2;
+    }
+
+    .mini-model .fact-node {
+      left: 50%;
+      top: 34px;
+      transform: translateX(-50%);
+      background: var(--blue2);
+      color: var(--blue);
+      border-color: #bfdbfe;
+      width: 116px;
+      min-height: 36px;
+    }
+
+    .mini-model .date-node { left: 0; top: 0; }
+    .mini-model .product-node { right: 0; top: 0; }
+    .mini-model .store-node { left: 0; bottom: 0; }
+    .mini-model .customer-node { right: 0; bottom: 0; }
+
+    .relation-svg {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 1;
+      pointer-events: none;
+    }
+
+    .relation-svg line {
+      stroke: rgba(37, 99, 235, .38);
+      stroke-width: 2.5;
+      stroke-linecap: round;
+    }
+
+    .rel-mark {
+      position: absolute;
+      color: var(--blue);
+      background: #fff;
+      border: 1px solid #bfdbfe;
+      border-radius: 999px;
+      min-width: 20px;
+      height: 20px;
+      display: grid;
+      place-items: center;
+      font-size: 10px;
+      font-weight: 900;
+      z-index: 3;
+    }
+
+    .rel-mark.one-a { left: 94px; top: 7px; }
+    .rel-mark.one-b { right: 94px; top: 7px; }
+    .rel-mark.one-c { left: 94px; bottom: 7px; }
+    .rel-mark.one-d { right: 94px; bottom: 7px; }
+    .rel-mark.many-a { left: 37%; top: 28px; }
+    .rel-mark.many-b { right: 37%; top: 28px; }
+    .rel-mark.many-c { left: 37%; bottom: 28px; }
+    .rel-mark.many-d { right: 37%; bottom: 28px; }
+
+    .slicer-visual {
+      gap: 6px;
+    }
+
+    .slicer-visual .field {
+      min-height: 25px;
+      padding: 4px 8px;
+      font-size: 11px;
+    }
+
+    .fields {
+      background: #fff;
+      border-left: 1px solid var(--line);
+      padding: 12px;
+      display: grid;
+      gap: 10px;
+      align-content: start;
+    }
+    .field { min-height: 29px; display: flex; align-items: center; gap: 8px; padding: 6px 8px; border-radius: 7px; background: #f8fafc; border: 1px solid var(--line); font-size: 12px; color: var(--text); }
+    .checkbox { width: 13px; height: 13px; border: 2px solid var(--blue); border-radius: 3px; background: #fff; }
+
+    .tabs {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      padding: 6px 12px;
+      background: #f8fafc;
+      border-top: 1px solid var(--line);
+    }
+    .tab { padding: 5px 12px; border-radius: 999px; background: #fff; border: 1px solid var(--line); font-size: 12px; color: var(--muted); font-weight: 800; }
+    .tab.active { color: var(--blue); background: var(--blue2); border-color: #bfdbfe; }
+
+    .query-grid {
+      display: grid;
+      grid-template-columns: 230px 1fr 260px;
+      gap: 14px;
+      min-height: 410px;
+    }
+    .query-pane, .steps-pane {
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 12px;
+      display: grid;
+      gap: 8px;
+      align-content: start;
+    }
+    .query-table {
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      overflow: hidden;
+      display: grid;
+      align-content: start;
+    }
+    .qrow { display: grid; grid-template-columns: 1fr 1fr .8fr .8fr; min-height: 36px; border-bottom: 1px solid var(--line); }
+    .qrow > div { padding: 8px 10px; border-right: 1px solid var(--line); font-size: 12px; color: var(--text); display: grid; align-content: center; }
+    .qrow > div:last-child { border-right: 0; }
+    .qrow.headrow > div { background: #eff6ff; color: var(--ink); font-weight: 900; }
+
+    .model-diagram {
+      min-height: 492px;
+      display: grid;
+      grid-template-columns: 1fr 1.25fr 1fr;
+      gap: 16px;
+      align-items: center;
+    }
+    .model-side { display: grid; gap: 14px; }
+    .model-box {
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 15px;
+      display: grid;
+      gap: 5px;
+      box-shadow: 0 10px 24px rgba(15, 23, 42, .06);
+    }
+    .fact {
+      min-height: 260px;
+      place-content: center;
+      text-align: center;
+      color: #fff;
+      background: linear-gradient(135deg, #2563eb, #0891b2);
+    }
+    .fact h3, .fact .small { color: #fff; }
+
+    .dax-layout {
+      display: grid;
+      grid-template-columns: .95fr 1.05fr;
+      gap: 18px;
+      align-items: stretch;
+    }
+
+    .formula-list {
+      display: grid;
+      gap: 12px;
+    }
+
+    .formula {
+      background: linear-gradient(135deg, #eff6ff, #f8fafc);
+      color: var(--ink);
+      border: 1px solid #bfdbfe;
+      border-radius: 12px;
+      padding: 14px 16px;
+      display: grid;
+      gap: 6px;
+      box-shadow: 0 10px 22px rgba(37, 99, 235, .08);
+    }
+
+    .formula small {
+      color: var(--blue);
+      font-weight: 900;
+      font-size: 12px;
+    }
+
+    .formula code {
+      color: var(--ink);
+      font-family: Consolas, "Cascadia Mono", monospace;
+      font-size: 17px;
+      line-height: 1.35;
+      white-space: normal;
+      background: rgba(255, 255, 255, .72);
+      border: 1px solid rgba(191, 219, 254, .8);
+      border-radius: 8px;
+      padding: 8px 10px;
+    }
+
+    .report-preview {
+      min-height: 360px;
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 16px;
+      display: grid;
+      grid-template-rows: auto auto 1fr;
+      gap: 12px;
+      box-shadow: 0 14px 30px rgba(15, 23, 42, .08);
+    }
+
+    .preview-kpis {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+    }
+
+    .preview-kpi {
+      background: #f8fafc;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 12px;
+      display: grid;
+      gap: 5px;
+    }
+
+    .preview-kpi small {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 900;
+    }
+
+    .preview-kpi strong {
+      font-size: 24px;
+      line-height: 1;
+      color: var(--ink);
+    }
+
+    .dash {
+      min-height: 500px;
+      display: grid;
+      grid-template-columns: 210px 1fr 360px;
+      gap: 14px;
+    }
+    .filter-panel, .ranking-panel {
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 16px;
+      display: grid;
+      gap: 12px;
+      align-content: start;
+      box-shadow: 0 14px 30px rgba(15, 23, 42, .07);
+    }
+    .filter { display: grid; gap: 7px; }
+    .filter label { color: var(--muted); font-size: 12px; font-weight: 900; }
+    .selectbox { min-height: 34px; border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; color: var(--text); background: #f8fafc; font-size: 13px; font-weight: 800; }
+
+    .dash-main { display: grid; gap: 12px; grid-template-rows: auto 1fr 1fr; }
+    .kpis { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+    .kpi {
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 13px;
+      display: grid;
+      gap: 5px;
+      box-shadow: 0 10px 24px rgba(15, 23, 42, .06);
+    }
+    .kpi small { color: var(--muted); font-size: 12px; font-weight: 900; }
+    .kpi strong { color: var(--ink); font-size: 24px; line-height: 1; }
+    .kpi em { color: var(--green); font-style: normal; font-size: 12px; font-weight: 900; }
+    .chart-row { display: grid; grid-template-columns: 1.25fr .75fr; gap: 12px; }
+    .chart-card {
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 13px;
+      display: grid;
+      gap: 8px;
+      box-shadow: 0 10px 24px rgba(15, 23, 42, .06);
+    }
+    .chart-card h4 { margin: 0; font-size: 14px; color: var(--ink); }
+    .bars-chart { height: 124px; display: grid; grid-template-columns: repeat(8, 1fr); gap: 7px; align-items: end; padding-top: 4px; border-bottom: 1px solid var(--line); }
+    .bars-chart i { display: block; min-height: 20px; border-radius: 5px 5px 0 0; background: var(--blue); }
+    .bars-chart i:nth-child(2) { background: var(--cyan); }
+    .bars-chart i:nth-child(3) { background: var(--green); }
+    .bars-chart i:nth-child(4) { background: var(--amber); }
+    .bars-chart i:nth-child(5) { background: var(--orange); }
+    .bars-chart i:nth-child(6) { background: var(--blue); }
+    .bars-chart i:nth-child(7) { background: var(--cyan); }
+    .bars-chart i:nth-child(8) { background: var(--violet); }
+    .hbar { display: grid; gap: 8px; }
+    .hbar-row { display: grid; grid-template-columns: 70px 1fr 42px; align-items: center; gap: 8px; color: var(--text); font-size: 12px; font-weight: 800; }
+    .track { height: 10px; border-radius: 999px; background: #e2e8f0; overflow: hidden; }
+    .fill { height: 100%; border-radius: 999px; background: var(--blue); }
+    .rank-row { display: grid; grid-template-columns: 1fr auto; gap: 8px; align-items: center; padding-bottom: 9px; border-bottom: 1px solid var(--line); color: var(--text); font-size: 13px; font-weight: 800; }
+    .rank-row strong { color: var(--blue); }
+    .analysis-card { background: #f8fafc; border: 1px solid var(--line); border-radius: 12px; padding: 12px; display: grid; gap: 8px; }
+    .analysis-card h4 { margin: 0; color: var(--ink); font-size: 14px; }
+    .insight-list { display: grid; gap: 8px; margin: 0; padding: 0; list-style: none; }
+    .insight-list li { display: grid; grid-template-columns: 24px 1fr; gap: 8px; align-items: start; color: var(--text); font-size: 12px; line-height: 1.35; }
+    .mini-badge { width: 24px; height: 24px; border-radius: 7px; display: grid; place-items: center; background: var(--blue2); color: var(--blue); font-size: 11px; font-weight: 900; }
+    .summary-flow { display: grid; grid-template-columns: 1fr 28px 1fr 28px 1fr 28px 1fr; gap: 8px; align-items: center; }
+    .summary-step {
+      position: relative;
+      min-height: 118px;
+      border-radius: 14px;
+      border: 1px solid var(--line);
+      background: #fff;
+      padding: 16px 14px 14px;
+      display: grid;
+      grid-template-rows: auto auto 1fr;
+      gap: 7px;
+      justify-items: center;
+      text-align: center;
+      box-shadow: 0 12px 26px rgba(15, 23, 42, .07);
+      overflow: hidden;
+    }
+    .summary-arrow { color: #94a3b8; font-size: 24px; font-weight: 900; text-align: center; }
+    .summary-step strong {
+      width: 46px;
+      height: 46px;
+      border-radius: 50%;
+      background: var(--blue2);
+      color: var(--blue);
+      display: grid;
+      place-items: center;
+      font-size: 20px;
+      line-height: 1;
+    }
+    .summary-step span { color: var(--ink); font-size: 16px; font-weight: 900; }
+    .summary-step small { color: var(--muted); font-size: 12px; font-weight: 800; line-height: 1.35; }
+    .summary-panel { display: grid; gap: 14px; }
+    .summary-block { background: #fff; border: 1px solid var(--line); border-radius: 12px; padding: 16px; display: grid; gap: 9px; }
+
+    .publish-flow {
+      display: grid;
+      grid-template-columns: 1fr .2fr 1fr .2fr 1fr;
+      gap: 13px;
+      align-items: center;
+      min-height: 425px;
+    }
+    .publish-box {
+      min-height: 260px;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: #fff;
+      padding: 22px;
+      display: grid;
+      gap: 12px;
+      align-content: center;
+      justify-items: center;
+      text-align: center;
+      box-shadow: 0 14px 30px rgba(15, 23, 42, .07);
+    }
+    .round {
+      width: 82px;
+      height: 82px;
+      display: grid;
+      place-items: center;
+      border-radius: 50%;
+      background: var(--blue2);
+      color: var(--blue);
+      font-size: 30px;
+      font-weight: 900;
+    }
+    .arrow { color: var(--blue); font-size: 42px; font-weight: 900; text-align: center; }
+
+    .controls {
+      position: fixed;
+      right: 22px;
+      bottom: 18px;
+      z-index: 20;
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      padding: 7px 10px;
+      border: 1px solid rgba(148, 163, 184, .45);
+      border-radius: 999px;
+      color: var(--text);
+      background: rgba(255, 255, 255, .78);
+      font-size: 13px;
+      font-weight: 800;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 10px 24px rgba(15, 23, 42, .14);
+    }
+    .nav-btn {
+      width: 34px;
+      height: 34px;
+      border: 0;
+      border-radius: 50%;
+      background: var(--blue);
+      color: #fff;
+      cursor: pointer;
+      font-size: 18px;
+      line-height: 1;
+    }
+    .nav-btn:disabled { background: #cbd5e1; cursor: default; }
+    .progress { position: fixed; left: 0; bottom: 0; z-index: 21; width: 100vw; height: 5px; background: rgba(148, 163, 184, .35); }
+    .progress-bar { width: 0; height: 100%; background: linear-gradient(90deg, var(--blue), var(--cyan)); transition: width 180ms ease; }
+
+    @media (max-width: 980px) {
+      body { overflow: auto; }
+      .deck { height: auto; min-height: 100vh; padding: 12px 12px 76px; }
+      .slide { width: 100%; min-height: calc(100vh - 96px); aspect-ratio: auto; }
+      .chrome { grid-template-rows: auto 1fr auto; }
+      header, footer { padding: 14px 22px; }
+      .content { padding: 24px 22px; }
+      .split, .wide-left, .wide-right, .grid-2, .grid-3, .grid-4, .workflow, .desktop-body, .query-grid, .model-diagram, .dash, .chart-row, .publish-flow { grid-template-columns: 1fr; }
+      .desktop, .query-grid, .model-diagram, .dash { min-height: auto; }
+      .controls { left: 50%; right: auto; transform: translateX(-50%); }
+    }
+  </style>
+</head>
+<body>
+  <main class="deck" aria-live="polite">
+    <section class="slide active">
+      <div class="chrome">
+        <header><span class="brand"><span class="logo"><i></i><i></i><i></i><i></i></span>Power BI レポート作成入門</span><span>01 / 15</span></header>
+        <div class="content split title-layout">
+          <div class="stack">
+            <p class="kicker">Power BI beginner presentation</p>
+            <h1>はじめての<br>Power BI</h1>
+            <p class="lead">データの取り込みから、レポート作成・共有までを操作イメージで学ぶ入門資料です。</p>
+            <div class="panel blue-panel">
+              <ul class="list">
+                <li><span class="badge">1</span><span>Power BIとは何か</span></li>
+                <li><span class="badge">2</span><span>どんなレポートが作れるか</span></li>
+                <li><span class="badge">3</span><span>Power BI Desktopでの基本操作</span></li>
+                <li><span class="badge">4</span><span>発行・共有・ライセンスの考え方</span></li>
+              </ul>
+            </div>
+          </div>
+          <div class="desktop hero-desktop">
+            <div class="titlebar"><span>Power BI Desktop - Sales Report.pbix</span><span>● ● ●</span></div>
+            <div class="ribbon"><span>データ取得</span><span>変換</span><span>新しいメジャー</span><span>発行</span></div>
+            <div class="desktop-body">
+              <div class="rail"><div>R</div><div>D</div><div>M</div></div>
+              <div class="canvas compact-canvas">
+                <div class="visual wide"><h4>売上サマリー</h4><div class="desktop-kpis"><div class="desktop-kpi"><small>売上</small><strong>8,420万</strong></div><div class="desktop-kpi"><small>粗利率</small><strong>31.4%</strong></div><div class="desktop-kpi"><small>前年比</small><strong>+12%</strong></div><div class="desktop-kpi"><small>件数</small><strong>1,284</strong></div></div></div>
+                <div class="visual tight"><h4>月別売上</h4><div class="small-bars"><i style="height:42%"></i><i style="height:70%"></i><i style="height:55%"></i><i style="height:84%"></i><i style="height:62%"></i><i style="height:92%"></i><i style="height:76%"></i></div></div>
+                <div class="visual tight"><h4>カテゴリ別</h4><div class="hbar"><div class="hbar-row"><span>A商品</span><span class="track"><span class="fill" style="width:82%"></span></span><span>82%</span></div><div class="hbar-row"><span>B商品</span><span class="track"><span class="fill" style="width:64%"></span></span><span>64%</span></div><div class="hbar-row"><span>C商品</span><span class="track"><span class="fill" style="width:48%"></span></span><span>48%</span></div></div></div>
+              </div>
+              <div class="fields"><strong>フィールド</strong><div class="field"><span class="checkbox"></span>売上金額</div><div class="field"><span class="checkbox"></span>受注日</div><div class="field"><span class="checkbox"></span>商品カテゴリ</div><div class="field"><span class="checkbox"></span>地域</div><div class="field"><span class="checkbox"></span>担当者</div></div>
+            </div>
+            <div class="tabs"><span class="tab active">売上サマリー</span><span class="tab">商品分析</span><span class="tab">営業担当</span></div>
+          </div>
+        </div>
+        <footer><span>対象: Excel集計から一歩進みたい人 / 基本的なIT知識がある初心者</span><span>Full HD 16:9</span></footer>
+      </div>
+    </section>
+
+<section class="slide">
+      <div class="chrome">
+        <header><span class="brand"><span class="logo"><i></i><i></i><i></i><i></i></span>Power BIとは</span><span>02 / 15</span></header>
+        <div class="content split wide-left">
+          <div class="stack">
+            <p class="kicker">What is Power BI?</p>
+            <h2>データを見える化し、<br>共有するBIツール</h2>
+            <p class="lead">Power BIは、Excelや業務システムのデータを取り込み、グラフや表で分析し、組織内で共有できるMicrosoftのデータ可視化ツールです。</p>
+          </div>
+          <div class="grid-2">
+            <article class="panel mini blue-panel"><span class="tag">集める</span><h3>複数のデータを接続</h3><p class="text">Excel、CSV、SharePoint、データベースなどを1つのレポートにまとめます。</p></article>
+            <article class="panel mini cyan-panel"><span class="tag">整える</span><h3>分析しやすい形に変換</h3><p class="text">不要列の削除、型変換、マスタ結合などをPower Queryで行います。</p></article>
+            <article class="panel mini amber-panel"><span class="tag">見る</span><h3>対話型レポートを作成</h3><p class="text">クリックやスライサーで、期間・地域・商品などの切り口を変えられます。</p></article>
+            <article class="panel mini green-panel"><span class="tag">共有する</span><h3>ブラウザでチーム利用</h3><p class="text">Power BI Serviceに発行し、関係者が同じ数字を確認できます。</p></article>
+          </div>
+        </div>
+        <footer><span>一言でいうと</span><span>Excelの集計表を、更新しやすい対話型レポートに変える道具</span></footer>
+      </div>
+    </section>
+
+<section class="slide">
+      <div class="chrome">
+        <header><span class="brand"><span class="logo"><i></i><i></i><i></i><i></i></span>Power BIでできること</span><span>03 / 15</span></header>
+        <div class="content">
+          <div class="head">
+            <p class="kicker">What Power BI enables</p>
+            <h2>Excel集計を、更新しやすい対話型レポートに変える</h2>
+          </div>
+          <div class="grid-4">
+            <article class="panel metric blue-panel"><strong>集</strong><h3>データを集める</h3><p class="text">Excel、CSV、SharePoint、データベースなどを1つのレポートに取り込む。</p></article>
+            <article class="panel metric cyan-panel"><strong>整</strong><h3>データを整える</h3><p class="text">Power Queryで列名、型、不要列、表記ゆれ、マスタ結合を整える。</p></article>
+            <article class="panel metric amber-panel"><strong>見</strong><h3>見える化する</h3><p class="text">カード、棒グラフ、表、スライサーで状況を直感的に確認する。</p></article>
+            <article class="panel metric green-panel"><strong>共</strong><h3>共有する</h3><p class="text">Power BI Serviceに発行し、ブラウザやTeamsから同じ数字を見られるようにする。</p></article>
+          </div>
+          <div class="panel">
+            <p class="lead">ポイントは、毎月の手作業を減らしながら、見る人が自分で期間・地域・商品などを切り替えて確認できることです。</p>
+          </div>
+        </div>
+        <footer><span>この後の流れ</span><span>実際にDesktopでどう作るかを、画面イメージに沿って見ていく</span></footer>
+      </div>
+    </section>
+
+<section class="slide">
+      <div class="chrome">
+        <header><span class="brand"><span class="logo"><i></i><i></i><i></i><i></i></span>全体像</span><span>04 / 15</span></header>
+        <div class="content">
+          <div class="head">
+            <p class="kicker">Creation workflow</p>
+            <h2>レポート作成は5つのステップで考える</h2>
+          </div>
+          <div class="workflow">
+            <article class="step"><span class="step-num">01</span><h3>データを読み込む</h3><p class="text">Excel、CSV、SharePoint、データベースなどから取り込む。</p></article>
+            <article class="step"><span class="step-num">02</span><h3>データを整える</h3><p class="text">Power Queryで列名、型、不要行、表記ゆれを整える。</p></article>
+            <article class="step"><span class="step-num">03</span><h3>関係を作る</h3><p class="text">売上明細と商品、店舗、日付などのマスタをつなぐ。</p></article>
+            <article class="step"><span class="step-num">04</span><h3>画面を作る</h3><p class="text">フィールドをドラッグして、カード、棒グラフ、表、スライサーを配置。</p></article>
+            <article class="step"><span class="step-num">05</span><h3>発行・共有する</h3><p class="text">Power BI Serviceに発行し、必要な人に共有する。</p></article>
+          </div>
+        </div>
+        <footer><span>今日の主役</span><span>高度な管理機能より、まずDesktopで作る流れをつかむ</span></footer>
+      </div>
+    </section>
+
+<section class="slide">
+      <div class="chrome">
+        <header><span class="brand"><span class="logo"><i></i><i></i><i></i><i></i></span>データ取得</span><span>05 / 15</span></header>
+        <div class="content split wide-left">
+          <div class="stack">
+            <p class="kicker">Get data</p>
+            <h2>ExcelやCSVを読み込む</h2>
+            <p class="lead">初心者の最初の一歩は、既に手元にあるExcel集計表やCSVをPower BI Desktopに取り込むことです。必要に応じてWeb APIやクラウドサービスにも接続できます。</p>
+            <ul class="list">
+              <li><span class="badge">1</span><span>ホームタブの「データを取得」をクリック</span></li>
+              <li><span class="badge">2</span><span>Excel、CSV、SharePointなどの接続先を選ぶ</span></li>
+              <li><span class="badge">3</span><span>必要なシートやテーブルを選び、読み込みまたは変換を選ぶ</span></li>
+            </ul>
+          </div>
+          <div class="panel">
+            <div class="grid-2">
+              <article class="panel mini blue-panel"><h3>Excel</h3><p class="text">手元の集計表、予算表、マスタ。</p></article>
+              <article class="panel mini cyan-panel"><h3>CSV</h3><p class="text">システムから出力した明細データ。</p></article>
+              <article class="panel mini amber-panel"><h3>SharePoint</h3><p class="text">チームで管理しているファイル。</p></article>
+              <article class="panel mini green-panel"><h3>データベース</h3><p class="text">SQL Serverなどの業務データ。</p></article>
+              <article class="panel mini"><h3>Web API</h3><p class="text">外部サービスや社内システムのAPIデータ。</p></article>
+            </div>
+          </div>
+        </div>
+        <footer><span>次のステップ</span><span>読み込んだデータは、そのまま使う前に形を整えることが多い</span></footer>
+      </div>
+    </section>
+
+<section class="slide">
+      <div class="chrome">
+        <header><span class="brand"><span class="logo"><i></i><i></i><i></i><i></i></span>データを整える</span><span>06 / 15</span></header>
+        <div class="content">
+          <div class="head">
+            <p class="kicker">Power Query</p>
+            <h2>読み込んだデータを整える</h2>
+            <p class="lead">Power Queryは、読み込んだ表を加工する画面です。不要列の削除、型の修正、マスタ結合などの手順を記録できます。</p>
+          </div>
+          <div class="query-grid">
+            <div class="query-pane"><strong>読み込んだ表</strong><div class="field">売上明細</div><div class="field">商品マスタ</div><div class="field">店舗マスタ</div><div class="field">予算</div></div>
+            <div class="query-table">
+              <div class="qrow headrow"><div>受注日</div><div>商品名</div><div>売上</div><div>地域</div></div>
+              <div class="qrow"><div>2026/04/01</div><div>A商品</div><div>128,000</div><div>関東</div></div>
+              <div class="qrow"><div>2026/04/02</div><div>B商品</div><div>94,000</div><div>関西</div></div>
+              <div class="qrow"><div>2026/04/03</div><div>C商品</div><div>76,000</div><div>中部</div></div>
+              <div class="qrow"><div>2026/04/04</div><div>A商品</div><div>132,000</div><div>九州</div></div>
+            </div>
+            <div class="steps-pane"><strong>記録された加工手順</strong><div class="field">元データを選択</div><div class="field">1行目を見出しにする</div><div class="field">日付・数値の型を変更</div><div class="field">不要な列を削除</div><div class="field">商品マスタを結合</div></div>
+          </div>
+        </div>
+        <footer><span>操作イメージ</span><span>Excelで毎月やっていた整形作業を、更新時に再実行できる手順として保存する</span></footer>
+      </div>
+    </section>
+
+<section class="slide">
+      <div class="chrome">
+        <header><span class="brand"><span class="logo"><i></i><i></i><i></i><i></i></span>3つのビュー</span><span>07 / 15</span></header>
+        <div class="content split wide-right">
+          <div class="stack">
+            <p class="kicker">Power BI Desktop UI</p>
+            <h2>レポート作成で使う<br>3つのビュー</h2><p class="lead">データの読み込みと整形ができたら、次はレポートを作成します。Power BI Desktopでは、3つのビューを切り替えて作業します。</p>
+            <ul class="list">
+              <li><span class="badge">R</span><span>レポートビュー: グラフやカードを配置する画面</span></li>
+              <li><span class="badge">D</span><span>データビュー: 読み込んだ表の中身を確認する画面</span></li>
+              <li><span class="badge">M</span><span>モデルビュー: テーブル同士の関係を見る画面</span></li>
+            </ul>
+            <div class="panel blue-panel lower-note">
+              <p class="text">今回は、レポートビューを中心に説明します。データビューとモデルビューは、読み込んだデータやテーブル同士の関係を確認する画面として軽く押さえればOKです。</p>
+            </div>
+          </div>
+          <div class="view-cards">
+            <div class="standalone-view">
+              <div class="view-icon">R</div>
+              <div class="view-mini">
+                <h3>レポートビュー</h3>
+                <p class="small">カード、棒グラフ、表、スライサーを配置する画面</p>
+                <div class="small-bars" style="height:46px;"><i style="height:42%"></i><i style="height:70%"></i><i style="height:55%"></i><i style="height:84%"></i><i style="height:62%"></i><i style="height:92%"></i><i style="height:76%"></i></div>
+              </div>
+            </div>
+            <div class="standalone-view">
+              <div class="view-icon" style="background:#ecfeff;color:var(--cyan);">D</div>
+              <div class="view-mini">
+                <h3>データビュー</h3>
+                <p class="small">読み込んだ表の行・列・値を確認する画面</p>
+                <div class="mini-table"><div><span>日付</span><span>商品</span><span>売上</span></div><div><span>4/1</span><span>A</span><span>128k</span></div><div><span>4/2</span><span>B</span><span>94k</span></div></div>
+              </div>
+            </div>
+            <div class="standalone-view">
+              <div class="view-icon" style="background:#f0fdf4;color:var(--green);">M</div>
+              <div class="view-mini">
+                <h3>モデルビュー</h3>
+                <p class="small">売上明細などのファクトテーブルと、日付・商品などのマスタテーブルの関係を確認する画面</p>
+                <div class="mini-model">
+                  <svg class="relation-svg" viewBox="0 0 360 104" preserveAspectRatio="none" aria-hidden="true">
+                    <line x1="88" y1="15" x2="122" y2="42"></line>
+                    <line x1="88" y1="89" x2="122" y2="62"></line>
+                    <line x1="272" y1="15" x2="238" y2="42"></line>
+                    <line x1="272" y1="89" x2="238" y2="62"></line>
+                  </svg>
+                  <div class="node fact-node">売上明細<br>ファクト</div>
+                  <div class="node date-node">日付<br>マスタ</div>
+                  <div class="node product-node">商品<br>マスタ</div>
+                  <div class="node store-node">店舗<br>マスタ</div>
+                  <div class="node customer-node">顧客<br>マスタ</div>
+                  <span class="rel-mark one-a">1</span>
+                  <span class="rel-mark one-b">1</span>
+                  <span class="rel-mark one-c">1</span>
+                  <span class="rel-mark one-d">1</span>
+                  <span class="rel-mark many-a">*</span>
+                  <span class="rel-mark many-b">*</span>
+                  <span class="rel-mark many-c">*</span>
+                  <span class="rel-mark many-d">*</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <footer><span>最初の理解</span><span>実際には左側のアイコンで、3つのビューを切り替えて使う</span></footer>
+      </div>
+    </section>
+
+<section class="slide">
+      <div class="chrome">
+        <header><span class="brand"><span class="logo"><i></i><i></i><i></i><i></i></span>レポート作成</span><span>08 / 15</span></header>
+        <div class="content split wide-right">
+          <div class="stack">
+            <p class="kicker">Build visuals</p>
+            <h2>フィールドを<br>ドラッグして<br>画面を作る</h2>
+            <ul class="list">
+              <li><span class="badge">1</span><span>視覚化ペインからカード、棒グラフ、表などを選ぶ</span></li>
+              <li><span class="badge">2</span><span>フィールドを「軸」「値」「凡例」などに入れる</span></li>
+              <li><span class="badge">3</span><span>スライサーを置いて、期間・地域・商品で絞り込めるようにする</span></li>
+            </ul>
+          </div>
+          <div class="desktop">
+            <div class="titlebar"><span>レポートビュー</span><span>ドラッグ&ドロップ</span></div>
+            <div class="ribbon"><span>カード</span><span>集合縦棒</span><span>折れ線</span><span>スライサー</span></div>
+            <div class="desktop-body">
+              <div class="rail"><div>R</div><div>D</div><div>M</div></div>
+              <div class="canvas build-canvas">
+                <div class="visual wide"><h4>カード: 売上 / 粗利率 / 件数</h4><div class="desktop-kpis"><div class="desktop-kpi"><small>売上</small><strong>8,420万</strong></div><div class="desktop-kpi"><small>粗利率</small><strong>31.4%</strong></div><div class="desktop-kpi"><small>受注数</small><strong>1,284</strong></div><div class="desktop-kpi"><small>前年比</small><strong>+12%</strong></div></div></div>
+                <div class="visual short"><h4>軸: 月 / 値: 売上</h4><div class="small-bars"><i style="height:40%"></i><i style="height:58%"></i><i style="height:72%"></i><i style="height:66%"></i><i style="height:86%"></i><i style="height:76%"></i><i style="height:92%"></i></div></div>
+                <div class="visual short slicer-visual"><h4>スライサー: 地域</h4><div class="field"><span class="checkbox"></span>関東</div><div class="field"><span class="checkbox"></span>関西</div><div class="field"><span class="checkbox"></span>中部</div></div>
+                <div class="visual short"><h4>折れ線: 前年比</h4><div class="line-chart"><svg viewBox="0 0 180 78" aria-hidden="true"><polyline points="0,58 28,50 56,54 84,35 112,42 140,22 180,18" fill="none" stroke="#2563eb" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/><polyline points="0,66 28,61 56,58 84,52 112,48 140,44 180,40" fill="none" stroke="#94a3b8" stroke-width="3" stroke-dasharray="6 6" stroke-linecap="round"/></svg></div></div>
+                <div class="visual short"><h4>ドーナツ: カテゴリ</h4><div class="donut-wrap"><div class="donut"></div><div class="legend"><span><i class="swatch"></i>A商品 <b>42%</b></span><span><i class="swatch" style="background:var(--cyan)"></i>B商品 <b>26%</b></span><span><i class="swatch" style="background:var(--green)"></i>C商品 <b>18%</b></span></div></div></div>
+              </div>
+              <div class="fields"><strong>フィールド</strong><div class="field"><span class="checkbox"></span>月</div><div class="field"><span class="checkbox"></span>売上</div><div class="field"><span class="checkbox"></span>粗利率</div><div class="field"><span class="checkbox"></span>地域</div><div class="field"><span class="checkbox"></span>商品カテゴリ</div></div>
+            </div>
+            <div class="tabs"><span class="tab active">売上サマリー</span><span class="tab">商品分析</span><span class="tab">地域分析</span></div>
+          </div>
+          <div class="panel blue-panel lower-note">
+            <p class="text">カードやグラフに置く「売上」「粗利率」などの指標は、DAX式で作れます。次のページで見ていきます。</p>
+          </div>
+        </div>
+        <footer><span>操作イメージ</span><span>プログラムを書くより、フィールドを配置して画面を組み立てる感覚に近い</span></footer>
+      </div>
+    </section>
+
+<section class="slide">
+      <div class="chrome">
+        <header><span class="brand"><span class="logo"><i></i><i></i><i></i><i></i></span>DAX式と指標</span><span>09 / 15</span></header>
+        <div class="content">
+          <div class="head">
+            <p class="kicker">Measures</p>
+            <h2>DAX式で、レポートに使う指標を作る</h2>
+          </div>
+          <div class="dax-layout">
+            <div class="stack">
+              <p class="lead">前ページでカードやグラフに配置した「売上」「粗利率」などの指標は、DAX式で作れます。作った指標はカード、グラフ、表で再利用できます。</p>
+              <div class="formula-list">
+                <div class="formula"><small>売上メジャー</small><code>売上 = SUM(売上明細[売上金額])</code></div>
+                <div class="formula"><small>粗利メジャー</small><code>粗利 = [売上] - [原価]</code></div>
+                <div class="formula"><small>粗利率メジャー</small><code>粗利率 = DIVIDE([粗利], [売上])</code></div>
+              </div>
+            </div>
+            <div class="report-preview">
+              <h3>作ったDAX式をレポートで使う</h3>
+              <div class="preview-kpis">
+                <div class="preview-kpi"><small>売上</small><strong>8,420万</strong></div>
+                <div class="preview-kpi"><small>粗利</small><strong>2,644万</strong></div>
+                <div class="preview-kpi"><small>粗利率</small><strong>31.4%</strong></div>
+              </div>
+              <div class="chart-card" style="box-shadow:none;">
+                <h4>月別売上: 値に「売上」メジャーを配置</h4>
+                <div class="bars-chart"><i style="height:48%"></i><i style="height:61%"></i><i style="height:72%"></i><i style="height:66%"></i><i style="height:84%"></i><i style="height:79%"></i><i style="height:92%"></i><i style="height:88%"></i></div>
+              </div>
+            </div>
+          </div>
+          <div class="panel green-panel">
+            <p class="small">補足: 発展的には、共通のSemantic modelをPower BI Serviceに発行し、複数レポートから同じメジャーを参照する運用もできます。</p>
+          </div>
+        </div>
+        <footer><span>初心者向け</span><span>DAXは最初から深追いせず、売上・件数・率のメジャーから始める</span></footer>
+      </div>
+    </section>
+
+    <section class="slide">
+      <div class="chrome">
+        <header><span class="brand"><span class="logo"><i></i><i></i><i></i><i></i></span>完成例</span><span>10 / 15</span></header>
+        <div class="content">
+          <div class="head">
+            <p class="kicker">Realistic dashboard example</p>
+            <h2>完成イメージ: 営業・売上分析レポート</h2>
+          </div>
+          <div class="dash">
+            <aside class="filter-panel">
+              <h3>フィルター</h3>
+              <div class="filter"><label>期間</label><div class="selectbox">2026年4月 - 6月</div></div>
+              <div class="filter"><label>地域</label><div class="selectbox">全地域</div></div>
+              <div class="filter"><label>商品カテゴリ</label><div class="selectbox">全カテゴリ</div></div>
+              <div class="filter"><label>営業担当</label><div class="selectbox">全担当者</div></div>
+              <p class="small">スライサーで絞ると、右側のグラフが連動して変わります。</p>
+            </aside>
+            <section class="dash-main">
+              <div class="kpis">
+                <div class="kpi"><small>売上</small><strong>2.84億</strong><em>+12.4%</em></div>
+                <div class="kpi"><small>粗利率</small><strong>31.4%</strong><em>+1.8pt</em></div>
+                <div class="kpi"><small>受注数</small><strong>1,284</strong><em>+86</em></div>
+                <div class="kpi"><small>平均単価</small><strong>221万</strong><em>-3.2%</em></div>
+              </div>
+              <div class="chart-row">
+                <div class="chart-card"><h4>月別売上推移</h4><div class="bars-chart"><i style="height:48%"></i><i style="height:61%"></i><i style="height:72%"></i><i style="height:66%"></i><i style="height:84%"></i><i style="height:79%"></i><i style="height:92%"></i><i style="height:88%"></i></div></div>
+                <div class="chart-card"><h4>案件ステータス</h4><div class="hbar"><div class="hbar-row"><span>受注</span><span class="track"><span class="fill" style="width:68%"></span></span><span>68%</span></div><div class="hbar-row"><span>提案中</span><span class="track"><span class="fill" style="width:46%"></span></span><span>46%</span></div><div class="hbar-row"><span>失注</span><span class="track"><span class="fill" style="width:22%"></span></span><span>22%</span></div></div></div>
+              </div>
+              <div class="chart-row">
+                <div class="chart-card"><h4>商品カテゴリ別売上</h4><div class="hbar"><div class="hbar-row"><span>保守</span><span class="track"><span class="fill" style="width:86%"></span></span><span>9,820万</span></div><div class="hbar-row"><span>ライセンス</span><span class="track"><span class="fill" style="width:72%"></span></span><span>8,210万</span></div><div class="hbar-row"><span>導入支援</span><span class="track"><span class="fill" style="width:61%"></span></span><span>6,940万</span></div></div></div>
+                <div class="chart-card"><h4>地域別売上</h4><div class="hbar"><div class="hbar-row"><span>関東</span><span class="track"><span class="fill" style="width:92%"></span></span><span>1.1億</span></div><div class="hbar-row"><span>関西</span><span class="track"><span class="fill" style="width:64%"></span></span><span>7,600万</span></div><div class="hbar-row"><span>中部</span><span class="track"><span class="fill" style="width:38%"></span></span><span>4,300万</span></div></div></div>
+              </div>
+            </section>
+            <aside class="ranking-panel">
+              <h3>担当者ランキング</h3>
+              <div class="rank-row"><span>佐藤</span><strong>4,820万</strong></div>
+              <div class="rank-row"><span>鈴木</span><strong>4,210万</strong></div>
+              <div class="rank-row"><span>田中</span><strong>3,960万</strong></div>
+              <div class="rank-row"><span>高橋</span><strong>3,340万</strong></div>
+              <div class="analysis-card">
+                <h4>読み取れること</h4>
+                <ul class="insight-list">
+                  <li><span class="mini-badge">1</span><span>関東の売上構成が大きく、全体を押し上げている</span></li>
+                  <li><span class="mini-badge">2</span><span>保守カテゴリが強く、継続収益の比率が高い</span></li>
+                  <li><span class="mini-badge">3</span><span>平均単価は下がっており、案件の小口化に注意</span></li>
+                </ul>
+              </div>
+              <div class="analysis-card">
+                <h4>次のアクション</h4>
+                <p class="small">関西・中部の提案中案件を担当者別に確認し、受注率改善の打ち手を検討します。</p>
+              </div>
+              <p class="small">更新日: 2026/06/23<br>対象: 2026年度 第1四半期</p>
+            </aside>
+          </div>
+        </div>
+        <footer><span>完成例のポイント</span><span>KPI、推移、内訳、ランキング、読み取りポイントを1画面で確認できます</span></footer>
+      </div>
+    </section>
+
+<section class="slide">
+      <div class="chrome">
+        <header><span class="brand"><span class="logo"><i></i><i></i><i></i><i></i></span>発行と共有</span><span>11 / 15</span></header>
+        <div class="content">
+          <div class="head">
+            <p class="kicker">Publish and share</p>
+            <h2>作ったレポートをPower BI Serviceへ発行する</h2>
+          </div>
+          <div class="publish-flow">
+            <article class="publish-box"><div class="round">PC</div><h3>Desktopで作成</h3><p class="text">PBIXファイルとしてレポートを作る。</p></article>
+            <div class="arrow">→</div>
+            <article class="publish-box blue-panel"><div class="round">☁</div><h3>Serviceへ発行</h3><p class="text">ワークスペースにアップロードし、ブラウザで見られる状態にする。</p></article>
+            <div class="arrow">→</div>
+            <article class="publish-box"><div class="round">人</div><h3>共有・閲覧</h3><p class="text">必要なメンバーに共有し、TeamsやSharePointから開けるようにする。</p></article>
+          </div>
+        </div>
+        <footer><span>初心者向け</span><span>最初は「Desktopで作る」「Serviceで見る・共有する」と覚える</span></footer>
+      </div>
+    </section>
+
+<section class="slide">
+      <div class="chrome">
+        <header><span class="brand"><span class="logo"><i></i><i></i><i></i><i></i></span>更新と共有の注意点</span><span>12 / 15</span></header>
+        <div class="content split wide-left">
+          <div class="stack">
+            <p class="kicker">Operation basics</p>
+            <h2>公開後に考えることは<br>更新・権限・所有者</h2>
+            <p class="lead">本格運用の前に、誰が管理し、どの頻度で更新し、誰が閲覧できるかを決めておきます。</p>
+          </div>
+          <div class="grid-2">
+            <article class="panel mini blue-panel"><h3>更新</h3><p class="text">手動更新だけでなく、Service側でスケジュール更新を設定できる。</p></article>
+            <article class="panel mini cyan-panel"><h3>権限</h3><p class="text">閲覧者、編集者、管理者を分け、見せる範囲を決める。</p></article>
+            <article class="panel mini amber-panel"><h3>所有者</h3><p class="text">個人任せにせず、レポートの管理担当を明確にする。</p></article>
+            <article class="panel mini green-panel"><h3>数字の確認</h3><p class="text">既存資料と突合し、定義や集計粒度のズレを確認する。</p></article>
+          </div>
+        </div>
+        <footer><span>今回は省略</span><span>オンプレミスデータ更新用のGatewayは、運用段階で必要になったら扱う</span></footer>
+      </div>
+    </section>
+
+<section class="slide">
+      <div class="chrome">
+        <header><span class="brand"><span class="logo"><i></i><i></i><i></i><i></i></span>ライセンス</span><span>13 / 15</span></header>
+        <div class="content">
+          <div class="head">
+            <p class="kicker">Licensing overview</p>
+            <h2>ライセンスは「作る人」と「見る人」で考える</h2>
+          </div>
+          <div class="grid-4">
+            <article class="panel metric"><strong>Free</strong><h3>個人で試す</h3><p class="text">Desktopで作成を試す入口。共有には制限がある。</p></article>
+            <article class="panel metric blue-panel"><strong>Pro</strong><h3>チームで共有</h3><p class="text">発行、共有、共同利用の基本的な検討軸。</p></article>
+            <article class="panel metric cyan-panel"><strong>PPU</strong><h3>高度機能</h3><p class="text">大きめのモデルや高度な機能をユーザー単位で使う。</p></article>
+            <article class="panel metric amber-panel"><strong>容量</strong><h3>全社展開</h3><p class="text">多数の閲覧者や全社基盤では容量系も検討する。</p></article>
+          </div>
+          <p class="small">価格や提供条件は変わるため、導入前にMicrosoft公式の価格・ライセンス情報を確認してください。</p>
+        </div>
+        <footer><span>説明のコツ</span><span>金額より、誰が作り、誰が見て、どこまで共有するかで整理する</span></footer>
+      </div>
+    </section>
+
+<section class="slide">
+      <div class="chrome">
+        <header><span class="brand"><span class="logo"><i></i><i></i><i></i><i></i></span>活用イメージ</span><span>14 / 15</span></header>
+        <div class="content">
+          <div class="head">
+            <p class="kicker">Use cases</p>
+            <h2>どんな業務レポートに向いているか</h2>
+          </div>
+          <div class="grid-4">
+            <article class="panel mini blue-panel"><span class="tag">営業</span><h3>案件進捗</h3><p class="text">SFAと販売実績を使い、売上見込み、受注率、失注理由を見る。</p></article>
+            <article class="panel mini cyan-panel"><span class="tag">経理</span><h3>予算実績</h3><p class="text">会計データと予算を使い、予実差や費目別推移を見る。</p></article>
+            <article class="panel mini amber-panel"><span class="tag">小売</span><h3>店舗・在庫</h3><p class="text">POSと在庫から、売れ筋、品切れ、過剰在庫を確認する。</p></article>
+            <article class="panel mini green-panel"><span class="tag">人事</span><h3>勤怠・採用</h3><p class="text">勤怠、採用、離職データから状況を定点観測する。</p></article>
+          </div>
+          <div class="panel blue-panel"><p class="lead">Power BIが向くのは、毎月・毎週くり返し作っている資料、複数の切り口で見たい数字、関係者で同じ数字を見たいレポートです。</p></div>
+        </div>
+        <footer><span>判断基準</span><span>一度きりの資料より、繰り返し見る業務レポートで効果が出やすい</span></footer>
+      </div>
+    </section>
+
+<section class="slide">
+      <div class="chrome">
+        <header><span class="brand"><span class="logo"><i></i><i></i><i></i><i></i></span>まとめ</span><span>15 / 15</span></header>
+        <div class="content split wide-left">
+          <div class="stack">
+            <p class="kicker">Next step</p>
+            <h2>まずは既存のExcel資料を<br>Power BIで置き換える</h2>
+            <p class="lead">最初から大規模に始めるより、身近な業務レポートを1本作り、操作感と効果を確認するのが現実的です。</p>
+            <div class="summary-flow">
+              <div class="summary-step"><strong>1</strong><span>取り込む</span><small>Excel / CSV</small></div>
+              <div class="summary-arrow">→</div>
+              <div class="summary-step"><strong>2</strong><span>整える</span><small>Power Query</small></div>
+              <div class="summary-arrow">→</div>
+              <div class="summary-step"><strong>3</strong><span>作る</span><small>レポートビュー</small></div>
+              <div class="summary-arrow">→</div>
+              <div class="summary-step"><strong>4</strong><span>共有する</span><small>Service</small></div>
+            </div>
+          </div>
+          <div class="summary-panel">
+            <div class="summary-block blue-panel">
+              <h3>今日の流れ</h3>
+              <p class="text">データ取得、Power Query、3つのビュー、レポート作成、DAX式、発行・共有までを確認しました。</p>
+            </div>
+            <div class="summary-block">
+              <h3>最初に選ぶ題材</h3>
+              <p class="text">毎月作っている売上レポート、予算実績、問い合わせ件数など、繰り返し見る資料がおすすめです。</p>
+            </div>
+            <div class="summary-block green-panel">
+              <h3>次の一歩</h3>
+              <p class="text">手元のExcelを1つ選び、Desktopで読み込み、カードと棒グラフを1枚作ってみましょう。</p>
+            </div>
+          </div>
+        </div>
+        <footer><span>ゴール</span><span>Power BIで「同じ数字を見ながら話せる」レポートを小さく作り始める</span></footer>
+      </div>
+    </section>
+  </main>
+
+  <nav class="controls" aria-label="スライド操作">
+    <button class="nav-btn" id="prev" type="button" aria-label="前のスライド">‹</button>
+    <span id="counter">1 / 15</span>
+    <button class="nav-btn" id="next" type="button" aria-label="次のスライド">›</button>
+  </nav>
+  <div class="progress" aria-hidden="true"><div class="progress-bar" id="progressBar"></div></div>
+
+  <script>
+    const slides = Array.from(document.querySelectorAll(".slide"));
+    const prevButton = document.querySelector("#prev");
+    const nextButton = document.querySelector("#next");
+    const counter = document.querySelector("#counter");
+    const progressBar = document.querySelector("#progressBar");
+    let current = 0;
+
+    function showSlide(index) {
+      current = Math.max(0, Math.min(index, slides.length - 1));
+      slides.forEach((slide, slideIndex) => {
+        slide.classList.toggle("active", slideIndex === current);
+      });
+      prevButton.disabled = current === 0;
+      nextButton.disabled = current === slides.length - 1;
+      counter.textContent = `${current + 1} / ${slides.length}`;
+      progressBar.style.width = `${((current + 1) / slides.length) * 100}%`;
+    }
+
+    prevButton.addEventListener("click", () => showSlide(current - 1));
+    nextButton.addEventListener("click", () => showSlide(current + 1));
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "ArrowRight" || event.key === "PageDown" || event.key === " ") {
+        event.preventDefault();
+        showSlide(current + 1);
+      }
+      if (event.key === "ArrowLeft" || event.key === "PageUp") {
+        event.preventDefault();
+        showSlide(current - 1);
+      }
+      if (event.key === "Home") showSlide(0);
+      if (event.key === "End") showSlide(slides.length - 1);
+    });
+    showSlide(0);
+  </script>
+</body>
+</html>
+
+
