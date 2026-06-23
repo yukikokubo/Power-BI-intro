@@ -183,6 +183,24 @@
       line-height: 1.42;
     }
 
+    .agenda-grid { gap: 18px; align-items: stretch; }
+    .agenda-panel { min-height: 372px; padding: 24px 26px; display: grid; align-content: start; }
+    .agenda-list { gap: 14px; }
+    .agenda-list li {
+      grid-template-columns: 38px 1fr;
+      gap: 14px;
+      align-items: center;
+      font-size: 23px;
+      line-height: 1.25;
+      font-weight: 700;
+    }
+    .agenda-list .badge {
+      width: 38px;
+      height: 38px;
+      border-radius: 12px;
+      font-size: 13px;
+    }
+
     .badge {
       width: 30px;
       height: 30px;
@@ -203,13 +221,13 @@
     }
 
     .step {
-      min-height: 280px;
+      min-height: 410px;
       border-radius: 16px;
       border: 1px solid var(--line);
       background: #fff;
       padding: 18px;
       display: grid;
-      grid-template-rows: auto auto 1fr;
+      grid-template-rows: auto auto 1fr auto;
       gap: 10px;
       position: relative;
       overflow: hidden;
@@ -230,6 +248,249 @@
     .step:nth-child(4)::after { background: var(--orange); }
     .step:nth-child(5)::after { background: var(--violet); }
     .step-num { color: rgba(37, 99, 235, .18); font-size: 50px; font-weight: 900; line-height: .9; }
+    .phase-icon {
+      height: 176px;
+      border-radius: 14px;
+      background: linear-gradient(135deg, #f8fbff, #edf6ff);
+      border: 1px solid #dbeafe;
+      position: relative;
+      overflow: hidden;
+      margin-top: 10px;
+      margin-bottom: 6px;
+    }
+    .phase-icon span, .phase-icon i, .phase-icon b { position: absolute; display: block; }
+    .mini-label {
+      position: static;
+      display: inline-flex;
+      min-height: 24px;
+      padding: 4px 8px;
+      border-radius: 8px;
+      background: #fff;
+      border: 1px solid #bfdbfe;
+      color: var(--blue);
+      font-size: 11px;
+      font-weight: 900;
+      box-shadow: 0 6px 14px rgba(37, 99, 235, .08);
+    }
+    .mini-source {
+      left: 14px;
+      top: 16px;
+      width: 62px;
+      height: 42px;
+      border-radius: 10px;
+      background: #fff;
+      border: 2px solid #bfdbfe;
+      color: var(--blue);
+      font-size: 11px;
+      font-weight: 900;
+      display: grid !important;
+      place-items: center;
+      box-shadow: 0 8px 18px rgba(37, 99, 235, .1);
+    }
+    .mini-source.csv { top: 66px; }
+    .mini-source.db { top: 116px; }
+    .mini-source.api { right: 14px; left: auto; top: 16px; }
+    .icon-source .hub {
+      right: 18px;
+      bottom: 20px;
+      width: 76px;
+      height: 70px;
+      border-radius: 14px;
+      border: 2px solid #93c5fd;
+      background: repeating-linear-gradient(0deg, #fff 0 15px, #e0f2fe 15px 18px);
+    }
+    .icon-source .hub::after {
+      content: "Power BI";
+      position: absolute;
+      left: 9px;
+      right: 9px;
+      bottom: -18px;
+      color: var(--blue);
+      font-size: 10px;
+      font-weight: 900;
+      text-align: center;
+    }
+    .flow-line { height: 3px; border-radius: 999px; background: var(--blue); transform-origin: left center; }
+    .icon-source .l1 { left: 76px; top: 38px; width: 58px; transform: rotate(10deg); }
+    .icon-source .l2 { left: 76px; top: 86px; width: 56px; transform: rotate(-8deg); background: var(--cyan); }
+    .icon-source .l3 { left: 76px; top: 135px; width: 60px; transform: rotate(-28deg); background: var(--green); }
+    .icon-source .l4 { right: 72px; top: 48px; width: 48px; transform: rotate(134deg); background: var(--violet); }
+    .icon-clean .pq-window, .icon-report .report-window, .icon-share .service-window {
+      left: 14px;
+      right: 14px;
+      top: 14px;
+      bottom: 14px;
+      border-radius: 13px;
+      border: 2px solid #bfdbfe;
+      background: #fff;
+      box-shadow: 0 10px 22px rgba(37, 99, 235, .1);
+    }
+    .window-bar { left: 0; right: 0; top: 0; height: 26px; background: #eff6ff; border-bottom: 1px solid #bfdbfe; }
+    .window-title { left: 10px; top: 6px; color: var(--blue); font-size: 10px; font-weight: 900; }
+    .icon-clean .col { top: 42px; bottom: 18px; width: 30%; border-radius: 8px; background: #f8fafc; border: 1px solid #dbeafe; }
+    .icon-clean .c1 { left: 11px; }
+    .icon-clean .c2 { left: 50%; transform: translateX(-50%); }
+    .icon-clean .c3 { right: 11px; background: #f0fdf4; border-color: #bbf7d0; }
+    .icon-clean .col::before { content: ""; position: absolute; left: 6px; right: 6px; top: 9px; height: 8px; border-radius: 999px; background: #bfdbfe; box-shadow: 0 20px 0 #dbeafe, 0 40px 0 #dbeafe; }
+    .icon-clean .c3::before { background: #86efac; box-shadow: 0 20px 0 #bbf7d0, 0 40px 0 #bbf7d0; }
+    .icon-clean .badge-clean { right: 18px; bottom: 18px; background: #dcfce7; border-color: #86efac; color: var(--green); }
+    .icon-model .fact {
+      left: 50%;
+      top: 63px;
+      width: 82px;
+      height: 50px;
+      transform: translateX(-50%);
+      border-radius: 12px;
+      border: 2px solid #93c5fd;
+      background: #dbeafe;
+      color: var(--blue);
+      font-size: 12px;
+      font-weight: 900;
+      display: grid !important;
+      place-items: center;
+      text-align: center;
+    }
+    .icon-model .master {
+      width: 62px;
+      height: 36px;
+      border-radius: 10px;
+      border: 2px solid #bfdbfe;
+      background: #fff;
+      color: var(--text);
+      font-size: 10px;
+      font-weight: 900;
+      display: grid !important;
+      place-items: center;
+      text-align: center;
+    }
+    .icon-model .m1 { left: 14px; top: 20px; }
+    .icon-model .m2 { right: 14px; top: 20px; }
+    .icon-model .m3 { left: 14px; bottom: 20px; }
+    .icon-model .m4 { right: 14px; bottom: 20px; }
+    .icon-model .rel { height: 3px; border-radius: 999px; background: #93c5fd; transform-origin: left center; }
+    .icon-model .r1 { left: 75px; top: 39px; width: 62px; transform: rotate(25deg); }
+    .icon-model .r2 { right: 75px; top: 39px; width: 62px; transform: rotate(155deg); }
+    .icon-model .r3 { left: 75px; bottom: 39px; width: 62px; transform: rotate(-25deg); }
+    .icon-model .r4 { right: 75px; bottom: 39px; width: 62px; transform: rotate(205deg); }
+    .icon-report .kpi-card {
+      left: 22px;
+      top: 44px;
+      width: 62px;
+      height: 38px;
+      border-radius: 9px;
+      background: #eff6ff;
+      border: 2px solid #93c5fd;
+    }
+    .icon-report .kpi-card::before { content: "KPI"; position: absolute; left: 8px; top: 7px; color: var(--blue); font-size: 11px; font-weight: 900; }
+    .icon-report .bar { bottom: 36px; width: 14px; border-radius: 7px 7px 0 0; background: var(--blue); }
+    .icon-report .bar:nth-child(4) { left: 98px; height: 32px; }
+    .icon-report .bar:nth-child(5) { left: 118px; height: 50px; background: var(--cyan); }
+    .icon-report .bar:nth-child(6) { left: 138px; height: 66px; background: var(--green); }
+    .icon-report .slice { right: 22px; top: 48px; width: 54px; height: 54px; border-radius: 50%; background: conic-gradient(var(--blue) 0 45%, var(--cyan) 45% 72%, var(--green) 72%); box-shadow: 0 8px 18px rgba(37, 99, 235, .14); }
+    .icon-report .slicer {
+      left: 22px;
+      right: 22px;
+      bottom: 18px;
+      height: 22px;
+      border-radius: 8px;
+      background: #f8fafc;
+      border: 1px solid #dbeafe;
+    }
+    .icon-report .slicer::before { content: "地域スライサー"; position: absolute; left: 8px; top: 4px; color: var(--muted); font-size: 10px; font-weight: 900; }
+    .icon-share .desktop-box, .icon-share .service-box, .icon-share .team-box {
+      width: 60px;
+      height: 42px;
+      border-radius: 10px;
+      border: 2px solid #bfdbfe;
+      background: #fff;
+      color: var(--text);
+      font-size: 10px;
+      font-weight: 900;
+      display: grid !important;
+      place-items: center;
+      text-align: center;
+    }
+    .icon-share .desktop-box { left: 13px; top: 36px; }
+    .icon-share .service-box { left: 50%; top: 66px; transform: translateX(-50%); background: #eff6ff; color: var(--blue); }
+    .icon-share .team-box { right: 13px; top: 36px; }
+    .icon-share .publish { left: 73px; top: 57px; width: 48px; height: 3px; background: var(--blue); transform: rotate(18deg); }
+    .icon-share .share { right: 73px; top: 57px; width: 48px; height: 3px; background: var(--violet); transform: rotate(162deg); }
+    .icon-share .people {
+      left: 42px;
+      right: 42px;
+      bottom: 22px;
+      height: 24px;
+      border-radius: 999px;
+      background: #f5f3ff;
+      border: 1px solid #ddd6fe;
+    }
+    .icon-share .people::before { content: "閲覧・共有"; position: absolute; left: 0; right: 0; top: 4px; color: var(--violet); font-size: 11px; font-weight: 900; text-align: center; }
+    .simple-icon {
+      height: 136px;
+      padding: 18px;
+      display: grid;
+      align-content: center;
+    }
+    .simple-icon span {
+      position: static;
+      display: inline-grid;
+    }
+    .simple-row {
+      display: grid;
+      grid-template-columns: 1fr 26px 1fr;
+      align-items: center;
+      gap: 8px;
+    }
+    .simple-row.three {
+      grid-template-columns: 1fr 22px 1fr 22px 1fr;
+    }
+    .simple-box {
+      min-height: 72px;
+      border-radius: 12px;
+      border: 2px solid #bfdbfe;
+      background: #fff;
+      color: var(--text);
+      font-size: 15px;
+      font-weight: 900;
+      text-align: center;
+      place-items: center;
+      box-shadow: 0 8px 18px rgba(37, 99, 235, .09);
+    }
+    .simple-box.blue { background: #eff6ff; color: var(--blue); border-color: #93c5fd; }
+    .simple-box.green { background: #f0fdf4; color: var(--green); border-color: #86efac; }
+    .simple-box.violet { background: #f5f3ff; color: var(--violet); border-color: #c4b5fd; }
+    .simple-arrow {
+      color: var(--blue);
+      font-size: 24px;
+      font-weight: 900;
+      text-align: center;
+    }
+    .simple-bars {
+      height: 72px;
+      display: flex !important;
+      align-items: end;
+      justify-content: center;
+      gap: 7px;
+      padding: 10px 0;
+      border-radius: 12px;
+      border: 2px solid #bfdbfe;
+      background: #fff;
+    }
+    .simple-bars i {
+      position: static;
+      width: 12px;
+      border-radius: 8px 8px 0 0;
+      background: var(--blue);
+    }
+    .simple-bars i:nth-child(2) { height: 38px; background: var(--cyan); }
+    .simple-bars i:nth-child(3) { height: 54px; background: var(--green); }
+    .simple-caption {
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 900;
+      text-align: center;
+      line-height: 1.25;
+    }
 
     .desktop {
       height: 100%;
@@ -247,6 +508,13 @@
       min-height: 455px;
       max-height: 520px;
       align-self: center;
+    }
+
+    .build-desktop {
+      align-self: center;
+      height: auto;
+      min-height: 0;
+      margin-top: 0;
     }
 
     .titlebar {
@@ -994,14 +1262,6 @@
             <p class="kicker">Power BI beginner presentation</p>
             <h1>はじめての<br>Power BI</h1>
             <p class="lead">データの取り込みから、レポート作成・共有までを操作イメージで学ぶ入門資料です。</p>
-            <div class="panel blue-panel">
-              <ul class="list">
-                <li><span class="badge">1</span><span>Power BIとは何か</span></li>
-                <li><span class="badge">2</span><span>どんなレポートが作れるか</span></li>
-                <li><span class="badge">3</span><span>Power BI Desktopでの基本操作</span></li>
-                <li><span class="badge">4</span><span>発行・共有・ライセンスの考え方</span></li>
-              </ul>
-            </div>
           </div>
           <div class="desktop hero-desktop">
             <div class="titlebar"><span>Power BI Desktop - Sales Report.pbix</span><span>● ● ●</span></div>
@@ -1024,7 +1284,44 @@
 
 <section class="slide">
       <div class="chrome">
-        <header><span class="brand"><span class="logo"><i></i><i></i><i></i><i></i></span>Power BIとは</span><span>02 / 15</span></header>
+        <header><span class="brand"><span class="logo"><i></i><i></i><i></i><i></i></span>本日の内容</span><span>02 / 15</span></header>
+        <div class="content">
+          <div class="head">
+            <p class="kicker">Today's agenda</p>
+            <h2>今日見るスライド</h2>
+            <p class="lead">Power BIとは何かを押さえたあと、データ取得、整形、画面作成、DAX、共有・活用まで順番に見ていきます。</p>
+          </div>
+          <div class="grid-2 agenda-grid">
+            <article class="panel agenda-panel">
+              <ul class="list agenda-list">
+                <li><span class="badge">03</span><span>Power BIとは</span></li>
+                <li><span class="badge">04</span><span>全体像</span></li>
+                <li><span class="badge">05</span><span>データ取得</span></li>
+                <li><span class="badge">06</span><span>データを整える</span></li>
+                <li><span class="badge">07</span><span>3つのビュー</span></li>
+                <li><span class="badge">08</span><span>レポート作成</span></li>
+                <li><span class="badge">09</span><span>DAX式と指標</span></li>
+              </ul>
+            </article>
+            <article class="panel agenda-panel">
+              <ul class="list agenda-list">
+                <li><span class="badge">10</span><span>完成例</span></li>
+                <li><span class="badge">11</span><span>発行と共有</span></li>
+                <li><span class="badge">12</span><span>更新と共有の注意点</span></li>
+                <li><span class="badge">13</span><span>ライセンス</span></li>
+                <li><span class="badge">14</span><span>活用イメージ</span></li>
+                <li><span class="badge">15</span><span>まとめ</span></li>
+              </ul>
+            </article>
+          </div>
+        </div>
+        <footer><span>進め方</span><span>Power BIの紹介から入り、実際に作る流れ、共有・活用まで順番に確認します</span></footer>
+      </div>
+    </section>
+
+<section class="slide">
+      <div class="chrome">
+        <header><span class="brand"><span class="logo"><i></i><i></i><i></i><i></i></span>Power BIとは</span><span>03 / 15</span></header>
         <div class="content split wide-left">
           <div class="stack">
             <p class="kicker">What is Power BI?</p>
@@ -1044,40 +1341,19 @@
 
 <section class="slide">
       <div class="chrome">
-        <header><span class="brand"><span class="logo"><i></i><i></i><i></i><i></i></span>Power BIでできること</span><span>03 / 15</span></header>
-        <div class="content">
-          <div class="head">
-            <p class="kicker">What Power BI enables</p>
-            <h2>Excel集計を、更新しやすい対話型レポートに変える</h2>
-          </div>
-          <div class="grid-4">
-            <article class="panel metric blue-panel"><strong>集</strong><h3>データを集める</h3><p class="text">Excel、CSV、SharePoint、データベースなどを1つのレポートに取り込む。</p></article>
-            <article class="panel metric cyan-panel"><strong>整</strong><h3>データを整える</h3><p class="text">Power Queryで列名、型、不要列、表記ゆれ、マスタ結合を整える。</p></article>
-            <article class="panel metric amber-panel"><strong>見</strong><h3>見える化する</h3><p class="text">カード、棒グラフ、表、スライサーで状況を直感的に確認する。</p></article>
-            <article class="panel metric green-panel"><strong>共</strong><h3>共有する</h3><p class="text">Power BI Serviceに発行し、ブラウザやTeamsから同じ数字を見られるようにする。</p></article>
-          </div>
-          <div class="panel">
-            <p class="lead">ポイントは、毎月の手作業を減らしながら、見る人が自分で期間・地域・商品などを切り替えて確認できることです。</p>
-          </div>
-        </div>
-        <footer><span>この後の流れ</span><span>実際にDesktopでどう作るかを、画面イメージに沿って見ていく</span></footer>
-      </div>
-    </section>
-
-<section class="slide">
-      <div class="chrome">
         <header><span class="brand"><span class="logo"><i></i><i></i><i></i><i></i></span>全体像</span><span>04 / 15</span></header>
         <div class="content">
           <div class="head">
             <p class="kicker">Creation workflow</p>
             <h2>レポート作成は5つのステップで考える</h2>
+            <p class="lead">Power BIのレポート作成は、データを集めて整え、関係を作り、画面を組み立てて共有する流れで進みます。</p>
           </div>
           <div class="workflow">
-            <article class="step"><span class="step-num">01</span><h3>データを読み込む</h3><p class="text">Excel、CSV、SharePoint、データベースなどから取り込む。</p></article>
-            <article class="step"><span class="step-num">02</span><h3>データを整える</h3><p class="text">Power Queryで列名、型、不要行、表記ゆれを整える。</p></article>
-            <article class="step"><span class="step-num">03</span><h3>関係を作る</h3><p class="text">売上明細と商品、店舗、日付などのマスタをつなぐ。</p></article>
-            <article class="step"><span class="step-num">04</span><h3>画面を作る</h3><p class="text">フィールドをドラッグして、カード、棒グラフ、表、スライサーを配置。</p></article>
-            <article class="step"><span class="step-num">05</span><h3>発行・共有する</h3><p class="text">Power BI Serviceに発行し、必要な人に共有する。</p></article>
+            <article class="step"><span class="step-num">01</span><h3>データを読み込む</h3><p class="text">Excel、CSV、SharePoint、データベースなどから取り込む。</p><div class="phase-icon simple-icon"><div class="simple-row"><span class="simple-box">Excel<br>CSV</span><span class="simple-arrow">→</span><span class="simple-box blue">Power BI</span></div></div></article>
+            <article class="step"><span class="step-num">02</span><h3>データを整える</h3><p class="text">Power Queryで列名、型、不要行、表記ゆれを整える。</p><div class="phase-icon simple-icon"><div class="simple-row"><span class="simple-box">Before<br>表記ゆれ</span><span class="simple-arrow">→</span><span class="simple-box green">After<br>整理済み</span></div></div></article>
+            <article class="step"><span class="step-num">03</span><h3>関係を作る</h3><p class="text">売上明細と商品、店舗、日付などのマスタをつなぐ。</p><div class="phase-icon simple-icon"><div class="simple-row"><span class="simple-box">Fact<br>売上明細</span><span class="simple-arrow">─</span><span class="simple-box green">Master<br>商品・日付</span></div></div></article>
+            <article class="step"><span class="step-num">04</span><h3>画面を作る</h3><p class="text">フィールドをドラッグして、カード、棒グラフ、表、スライサーを配置。</p><div class="phase-icon simple-icon"><div class="simple-row"><span class="simple-box blue">KPI<br>カード</span><span class="simple-arrow">+</span><span class="simple-bars"><i style="height:28px"></i><i></i><i></i></span></div></div></article>
+            <article class="step"><span class="step-num">05</span><h3>発行・共有する</h3><p class="text">Power BI Serviceに発行し、必要な人に共有する。</p><div class="phase-icon simple-icon"><div class="simple-row"><span class="simple-box">Desktop</span><span class="simple-arrow">→</span><span class="simple-box blue">Service</span></div></div></article>
           </div>
         </div>
         <footer><span>今日の主役</span><span>高度な管理機能より、まずDesktopで作る流れをつかむ</span></footer>
@@ -1216,8 +1492,11 @@
               <li><span class="badge">2</span><span>フィールドを「軸」「値」「凡例」などに入れる</span></li>
               <li><span class="badge">3</span><span>スライサーを置いて、期間・地域・商品で絞り込めるようにする</span></li>
             </ul>
+            <div class="panel blue-panel lower-note">
+              <p class="text">カードやグラフに置く「売上」「粗利率」などの指標は、DAX式で作れます。次のページで見ていきます。</p>
+            </div>
           </div>
-          <div class="desktop">
+          <div class="desktop build-desktop">
             <div class="titlebar"><span>レポートビュー</span><span>ドラッグ&ドロップ</span></div>
             <div class="ribbon"><span>カード</span><span>集合縦棒</span><span>折れ線</span><span>スライサー</span></div>
             <div class="desktop-body">
@@ -1232,9 +1511,6 @@
               <div class="fields"><strong>フィールド</strong><div class="field"><span class="checkbox"></span>月</div><div class="field"><span class="checkbox"></span>売上</div><div class="field"><span class="checkbox"></span>粗利率</div><div class="field"><span class="checkbox"></span>地域</div><div class="field"><span class="checkbox"></span>商品カテゴリ</div></div>
             </div>
             <div class="tabs"><span class="tab active">売上サマリー</span><span class="tab">商品分析</span><span class="tab">地域分析</span></div>
-          </div>
-          <div class="panel blue-panel lower-note">
-            <p class="text">カードやグラフに置く「売上」「粗利率」などの指標は、DAX式で作れます。次のページで見ていきます。</p>
           </div>
         </div>
         <footer><span>操作イメージ</span><span>プログラムを書くより、フィールドを配置して画面を組み立てる感覚に近い</span></footer>
@@ -1279,7 +1555,7 @@
       </div>
     </section>
 
-    <section class="slide">
+<section class="slide">
       <div class="chrome">
         <header><span class="brand"><span class="logo"><i></i><i></i><i></i><i></i></span>完成例</span><span>10 / 15</span></header>
         <div class="content">
@@ -1345,6 +1621,7 @@
           <div class="head">
             <p class="kicker">Publish and share</p>
             <h2>作ったレポートをPower BI Serviceへ発行する</h2>
+            <p class="lead">Power BI Serviceは、Desktopで作成したレポートをブラウザ上で公開・閲覧・共有するためのクラウドサービスです。</p>
           </div>
           <div class="publish-flow">
             <article class="publish-box"><div class="round">PC</div><h3>Desktopで作成</h3><p class="text">PBIXファイルとしてレポートを作る。</p></article>
@@ -1385,6 +1662,7 @@
           <div class="head">
             <p class="kicker">Licensing overview</p>
             <h2>ライセンスは「作る人」と「見る人」で考える</h2>
+            <p class="lead">Desktopで作るだけなら始めやすい一方、Serviceでレポートを共有・閲覧する場合は、利用者や共有範囲に応じたライセンスが必要になります。</p>
           </div>
           <div class="grid-4">
             <article class="panel metric"><strong>Free</strong><h3>個人で試す</h3><p class="text">Desktopで作成を試す入口。共有には制限がある。</p></article>
@@ -1426,15 +1704,6 @@
             <p class="kicker">Next step</p>
             <h2>まずは既存のExcel資料を<br>Power BIで置き換える</h2>
             <p class="lead">最初から大規模に始めるより、身近な業務レポートを1本作り、操作感と効果を確認するのが現実的です。</p>
-            <div class="summary-flow">
-              <div class="summary-step"><strong>1</strong><span>取り込む</span><small>Excel / CSV</small></div>
-              <div class="summary-arrow">→</div>
-              <div class="summary-step"><strong>2</strong><span>整える</span><small>Power Query</small></div>
-              <div class="summary-arrow">→</div>
-              <div class="summary-step"><strong>3</strong><span>作る</span><small>レポートビュー</small></div>
-              <div class="summary-arrow">→</div>
-              <div class="summary-step"><strong>4</strong><span>共有する</span><small>Service</small></div>
-            </div>
           </div>
           <div class="summary-panel">
             <div class="summary-block blue-panel">
@@ -1500,5 +1769,4 @@
   </script>
 </body>
 </html>
-
 
